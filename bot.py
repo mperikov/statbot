@@ -28,7 +28,7 @@ from stats_renderer import (
     render_player_stats_image,
     render_stats_image,
 )
-from stats_store import GuildStatsState, print_top_clans_console
+from stats_store import GuildStatsState
 
 
 logging.basicConfig(
@@ -44,7 +44,6 @@ STATS_DATA_PATH = Path(os.getenv("STATS_DATA_PATH", str(_REPO_ROOT / "stats_data
 SYNC_GUILD_ID = os.getenv("SYNC_GUILD_ID")
 KILLFEED_POLL_INTERVAL_SEC = max(1, int(os.getenv("KILLFEED_POLL_INTERVAL_SEC", "2")))
 STATS_PUBLISH_DEBOUNCE_SEC = max(1.0, float(os.getenv("STATS_PUBLISH_DEBOUNCE_SEC", "5")))
-STAT_CONSOLE_TOP_CLANS = int(os.getenv("STAT_CONSOLE_TOP_CLANS", "20"))
 
 
 def _get_required_env(name: str) -> str:
@@ -305,11 +304,6 @@ async def _do_publish_stats(guild: discord.Guild, state: GuildStatsState) -> Non
 
     clans = state.aggregator.top_clans_by_kills(TOP_CLAN_LIMIT)
     players = state.aggregator.top_players_by_kills(TOP_PLAYER_LIMIT)
-    print_top_clans_console(
-        state.aggregator,
-        limit=STAT_CONSOLE_TOP_CLANS,
-        guild_id=guild.id,
-    )
     try:
         clan_buffer = render_stats_image(clans)
         player_buffer = render_player_stats_image(players)

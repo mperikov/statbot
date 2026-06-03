@@ -188,44 +188,6 @@ class StatsAggregator:
                 )
 
 
-CONSOLE_TOP_CLAN_LIMIT = 20
-
-
-def print_top_clans_console(
-    aggregator: StatsAggregator,
-    *,
-    limit: int = CONSOLE_TOP_CLAN_LIMIT,
-    guild_id: int | None = None,
-) -> None:
-    """Временный вывод топа кланов в консоль (stdout)."""
-    if limit <= 0:
-        return
-
-    clans = aggregator.top_clans_by_kills(limit)
-    if not clans:
-        print("--- top clans: no data ---", flush=True)
-        return
-
-    clan_w = max(4, min(28, max(len(c.display_name) for c in clans)))
-    title = f"TOP {limit} CLANS"
-    if guild_id is not None:
-        title = f"{title} (guild {guild_id})"
-
-    lines = [
-        title,
-        f"{'#':>3}  {'clan':<{clan_w}} {'kills':>7} {'deaths':>7} {'kd':>6} {'maxdist':>8}",
-        "-" * (6 + clan_w + 7 + 7 + 6 + 8 + 4),
-    ]
-    for index, clan in enumerate(clans, start=1):
-        kd_text = f"{clan.kd:.2f}"
-        dist_text = f"{clan.max_distance_m:.0f}" if clan.max_distance_m else "—"
-        lines.append(
-            f"{index:>3}  {clan.display_name:<{clan_w}} "
-            f"{clan.kills:>7} {clan.deaths:>7} {kd_text:>6} {dist_text:>8}"
-        )
-    print("\n".join(lines), flush=True)
-
-
 class GuildStatsState:
     def __init__(self, path: Path) -> None:
         self.path = path
