@@ -25,11 +25,10 @@ Discord-бот для статистики кланов по каналу killfe
 
 Два **JPEG** на `images/statfon.jpg`: таблица кланов и таблица игроков (топ **7**, ~**74%** кадра). Без текстовой подписи.
 
-Пути в `.env` (необязательно):
+Шрифт **Open Sans** лежит в `assets/fonts/` (в репозитории). На Linux без bundled-шрифта используются DejaVu/Liberation, если установлены. Переопределение: `STAT_FONT_PATH` в `.env`.
 
 ```env
 STAT_BACKGROUND_PATH=C:\bots\statbot\images\statfon.jpg
-STAT_FONT_PATH=C:\bots\dsbot\assets\fonts\OpenSans-VF.ttf
 ```
 
 ## Метрики (топ 7 по убийствам)

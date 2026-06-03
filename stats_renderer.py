@@ -13,6 +13,7 @@ from stats_store import RankingEntry
 
 
 _REPO_ROOT = Path(__file__).resolve().parent
+_BUNDLED_FONTS_DIR = _REPO_ROOT / "assets" / "fonts"
 _DEFAULT_BACKGROUND = _REPO_ROOT / "images" / "statfon.jpg"
 STAT_BACKGROUND_PATH = Path(os.getenv("STAT_BACKGROUND_PATH", str(_DEFAULT_BACKGROUND)))
 
@@ -39,39 +40,56 @@ _COLOR_MUTED = (40, 40, 40, 255)
 _COLOR_GRID = (170, 170, 170, 160)
 
 
-def _resolve_font_path() -> Path:
+def _resolve_font_path(*, bold: bool = False) -> Path:
     env_path = os.getenv("STAT_FONT_PATH")
     if env_path:
         candidate = Path(env_path)
         if candidate.is_file():
             return candidate
 
-    for candidate in (
-        _REPO_ROOT / "assets" / "fonts" / "OpenSans-VF.ttf",
+    bundled = (
+        _BUNDLED_FONTS_DIR / ("OpenSans-Bold.ttf" if bold else "OpenSans-Regular.ttf"),
+        _BUNDLED_FONTS_DIR / "OpenSans-VF.ttf",
         _REPO_ROOT.parent / "dsbot" / "assets" / "fonts" / "OpenSans-VF.ttf",
-    ):
+    )
+    for candidate in bundled:
+        if candidate.is_file():
+            return candidate
+
+    linux = (
+        Path("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf")
+        if bold
+        else Path("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"),
+        Path("/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf")
+        if bold
+        else Path("/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf"),
+    )
+    for candidate in linux:
         if candidate.is_file():
             return candidate
 
     windir = os.environ.get("WINDIR", r"C:\Windows")
-    segoe = Path(windir) / "Fonts" / "segoeui.ttf"
+    segoe = Path(windir) / "Fonts" / ("segoeuib.ttf" if bold else "segoeui.ttf")
     if segoe.is_file():
         return segoe
 
     raise FileNotFoundError(
-        "Font not found. Set STAT_FONT_PATH or place OpenSans-VF.ttf in assets/fonts."
+        "Font not found. Set STAT_FONT_PATH or add OpenSans-Regular.ttf "
+        "and OpenSans-Bold.ttf to assets/fonts."
     )
 
 
 def _load_font(size: int, *, weight: int = 400) -> ImageFont.FreeTypeFont | ImageFont.ImageFont:
-    path = _resolve_font_path()
+    bold = weight >= 600
+    path = _resolve_font_path(bold=bold)
     font = ImageFont.truetype(str(path), size=size)
-    setter = getattr(font, "set_variation_by_axes", None)
-    if callable(setter):
-        try:
-            setter([float(weight)])
-        except (OSError, TypeError, ValueError):
-            pass
+    if path.name == "OpenSans-VF.ttf":
+        setter = getattr(font, "set_variation_by_axes", None)
+        if callable(setter):
+            try:
+                setter([float(weight)])
+            except (OSError, TypeError, ValueError):
+                pass
     return font
 
 
