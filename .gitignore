@@ -1,0 +1,5 @@
+.env
+__pycache__/
+*.pyc
+stats_data.json
+channel_config.json
